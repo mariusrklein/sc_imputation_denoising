@@ -29,7 +29,7 @@ def ion_corr_deviation(adata: ad.AnnData, adata_ctrl: ad.AnnData, inverted = Tru
 
     ion_corr_mat = get_ion_corr_matrix(adata)
     ion_corr_mat_ctrl = get_ion_corr_matrix(adata_ctrl)
-    ion_corr_deviation = np.abs(np.nanmean(ion_corr_mat - ion_corr_mat_ctrl), axis=None)
+    ion_corr_deviation = np.abs(np.nanmean(ion_corr_mat - ion_corr_mat_ctrl, axis=None))
     if inverted:
         return -1*ion_corr_deviation
     else:
