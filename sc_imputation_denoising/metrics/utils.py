@@ -1,9 +1,15 @@
+""" Utility functions for metrics
+
+Functions:
+    get_ion_corr_matrix: Compute the correlation matrix of the imputed data with respect to columns
+    get_cell_corr_matrix: Compute the correlation matrix of the imputed data with respect to rows
+    calculate_umap: Utility function to calculate UMAP embedding of an AnnData object
+    
+Author: Marius Klein, July 2023
+"""
 import numpy as np
 import pandas as pd
 import scanpy as sc
-import anndata as ad
-import warnings
-
 
 def get_ion_corr_matrix(adata) -> pd.DataFrame:
     """
@@ -36,12 +42,20 @@ def get_cell_corr_matrix(adata, condition_key = 'condition', subset_above=10000)
 
     return adata[subset.index].to_df().T.corr()
     
-    
 
-def calculate_umap(adata: ad.AnnData, umap_kws=None, neighbors_kws=None, **pca_kws) -> ad.AnnData:
+def calculate_umap(adata, umap_kws=None, neighbors_kws=None, **pca_kws):
+    """ Utility function to calculate UMAP embedding of an AnnData object
+
+    :param adata: AnnData object
+    :param umap_kws: dict, keyword arguments for sc.tl.umap
+    :param neighbors_kws: dict, keyword arguments for sc.pp.neighbors
+    :param pca_kws: dict, keyword arguments for sc.pp.pca
+
+    returns: AnnData object with attributes for UMAP embedding.
     
-    _umap_kws = dict(min_dist=0.5, spread=1.0, random_state=1, n_components=2) 
-    _neighbors_kws = dict(n_neighbors=50, metric='cosine')
+    """
+    _umap_kws = dict(min_dist=0.5, spread=1.0, random_state=1, n_components=2)
+    _neighbors_kws = dict(n_neighbors=50, metric="cosine")
 
     if umap_kws is not None:
         _umap_kws.update(umap_kws)
@@ -52,7 +66,5 @@ def calculate_umap(adata: ad.AnnData, umap_kws=None, neighbors_kws=None, **pca_k
     sc.pp.neighbors(adata, **_neighbors_kws)
     sc.tl.umap(adata, **_umap_kws)
     return adata
-
-
 
 
