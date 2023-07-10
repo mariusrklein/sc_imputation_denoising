@@ -1,3 +1,30 @@
+""" Scaffolding for an automatic dropout simulation, imputation and evaluation workflow.
+
+This module contains the evaluation_workflow class, which can be used to automatically simulate
+dropouts, impute the data and evaluate the imputation results. The class is instantiated with a
+transformed and normalized AnnData object and information about the samples, batches and conditions
+(column names of adata.obs).
+ 
+To simulate dropouts, use the simulate_dropouts method. This method takes a list of dropout rates
+as floats or a number of dropout rates to simulate with on a log scale. The method generates
+a dictionary of simulated datasets, with the dropout rate as key and the simulated AnnData object
+as value. The baseline dropout rate is automatically added to the list of dropout rates to simulate.
+This dictionary can be used to run different imputation methods: Every AnnData object contains a 
+"ctrl" layer with the corrupted data. Different imputation methods can be run on this layer and 
+the results can be saved to new layers of the respective AnnData object. For the evaluation, the 
+init_analysis method has to be run. This method transforms the dictionary of simulated and imputed
+datasets into a list of dictionaries, with the dropout rate, imputation method and the respective
+AnnData object as keys. This list can be used to run the analyse_imputation method which returns a 
+DataFrame with the results of the relevant evaluation metrics for all combinations of simulated 
+dropout rates and imputation methods. The results can be plotted with the evaluation_plots module.
+
+An evaluation_workflow object can be saved to a pickle file and loaded again with the
+get_from_pickle method.
+
+Author: Marius Klein, July 2023
+
+"""
+
 import warnings
 import numpy as np
 import pandas as pd
@@ -10,11 +37,9 @@ import pickle
 import copy
 
 from sc_imputation_denoising.imputation.constants import const
-import sc_imputation_denoising.imputation.imputation as imp
+import sc_imputation_denoising.imputation.simulation as imp
 import sc_imputation_denoising.evaluation.utils as imp_eval
 from sc_imputation_denoising.evaluation.evaluation_metrics import metrics_plotting
-
-print("IE version 1.3")
 
 
 class evaluation_workflow:
@@ -48,6 +73,7 @@ class evaluation_workflow:
 
     @property
     def analysis_ions(self) -> list:
+        """List of relevant ions for analysis"""
         if self._analysis_ions is None:
             self._analysis_ions = self._get_differential_ions()
 
@@ -74,8 +100,8 @@ class evaluation_workflow:
 
         return diff_ions
 
-    def get_variable_ions(self):
-        sc.pp.highly_variable_genes(self.dataset)
+    def get_variable_ions(self, **kwargs):
+        sc.pp.highly_variable_genes(self.dataset, **kwargs)
 
         var_ions = self.dataset.var.loc[
             self.dataset.var["highly_variable"] is True,
@@ -99,7 +125,11 @@ class evaluation_workflow:
             If 0, only the baseline dropout rate is simulated.
         :param method: Method to use for simulating dropouts. See
             sc_imputation_denoising.imputation.imputation.simulate_dropouts_adata
-        :param method_kws: Keyword arguments for the dropout simulation method
+        :param method_kws: Keyword arguments for the dropout simulation method. For the MNAR
+            simulation method, the keyword argument "value_importance" can be used to set the
+            relative importance of the deterministic part in scoring, in particular, the value
+            of a data point for the dropout decision. Higher values mean that the value of a data 
+            point is more important for the dropout decision.
 
         """
         if dropout_rates is None:
@@ -247,7 +277,7 @@ class evaluation_workflow:
         if "dr" in analysis_df.columns:
             analysis_df["dropout_rate"] = (
                 analysis_df["dr"]
-                .apply(lambda x: re.match("[\d\.]*", x).group(0))
+                .apply(lambda x: re.match("[\\d.]*", x).group(0))
                 .astype(float)
             )
 
@@ -275,6 +305,34 @@ class evaluation_workflow:
         )
         return out_df
 
+    def _analyse_umap(self, params):
+        """Prototype analysis function for UMAP plots
+
+        :param params: Dictionary with parameters for analysis, with keys 'adata', 'imputation',
+            'dropout_rate' as present in self.adata_list elements
+
+        returns: DataFrame with UMAP coordinates of cells in the dataset
+
+        """
+        adata = params["adata"]
+
+        group_cols = [
+            col
+            for col in [const.SAMPLE_COL, const.BATCH_COL, const.CONDITION_COL]
+            if col in adata.obs.columns
+        ]
+        u_df = sc.get.obs_df(
+            adata,
+            keys=group_cols + self.analysis_ions,
+            obsm_keys=[("X_umap", 0), ("X_umap", 1)],
+        )
+
+        out_df = u_df
+        out_df["imputation"] = params["imputation"]
+        out_df["dropout_rate"] = params["dropout_rate"]
+
+        return out_df
+
     def save_to_pickle(self, save_to):
         """Save evaluation_workflow object to pickle file
 
@@ -293,10 +351,15 @@ class evaluation_workflow:
     def copy(self):
         return copy.copy(self)
 
+    @staticmethod
+    def get_from_pickle(path):
+        """Load evaluation_workflow object from pickle file"""
+        with open(path, "rb") as inp:
+            load_obj = pickle.load(inp)
+
+        return load_obj
+
 
 def get_from_pickle(path):
     """Load evaluation_workflow object from pickle file"""
-    with open(path, "rb") as inp:
-        load_obj = pickle.load(inp)
-
-    return load_obj
+    return evaluation_workflow.get_from_pickle(path)
