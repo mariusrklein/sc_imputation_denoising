@@ -23,6 +23,7 @@ def plot_filtering_qc(
     n_cells: Union[int, float] = None,
     save_path: str = None,
     copy=True,
+    log_transform: bool = True,
     ion_plot_kws: dict = None,
     **cell_plot_kws,
 ):
@@ -40,6 +41,9 @@ def plot_filtering_qc(
         function. If None, the plots are not saved
     :param copy: bool, if True, a copy of adata is returned. If False, adata is modified in-place
         and returned.
+    :param log_transform: bool, if True, the adata is assumed to not be log-transformed. QC metrics 
+        require log-transformed data, so the data is log-transformed before calculating the QC 
+        metrics.
     :param ion_plot_kws: dict, keyword arguments to pass to seaborn.displot for plotting the ion distribution
     :param **cell_plot_kws: additional keyword arguments to pass to seaborn.displot for plotting the cell distribution
     """
@@ -81,8 +85,11 @@ def plot_filtering_qc(
             min_cells = int(n_cells * len(adata.obs_names))
             perc_cells = n_cells
 
+    qc_adata = adata.copy()
+    if log_transform:
+        sc.pp.log1p(qc_adata)
     # generating QC metrics dataframes and connecting them to other ion/cell information
-    cell_qc_df, ion_qc_df = sc.pp.calculate_qc_metrics(adata=adata, percent_top=None)
+    cell_qc_df, ion_qc_df = sc.pp.calculate_qc_metrics(adata=qc_adata, percent_top=None)
     cell_qc = pd.merge(adata.obs, cell_qc_df, left_index=True, right_index=True)
     ion_qc = pd.merge(adata.var, ion_qc_df, left_index=True, right_index=True)
 
