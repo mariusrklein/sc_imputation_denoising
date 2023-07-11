@@ -14,7 +14,6 @@ setuptools.setup(
     python_requires='>=3.0',
     install_requires=[
         "scanpy>=1.9.1",
-        "scib",
         "scikit-learn",
         "seaborn",
         "scipy", 

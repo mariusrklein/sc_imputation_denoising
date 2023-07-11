@@ -17,6 +17,7 @@ Author: Marius Klein, July 2023
 import pandas as pd
 import numpy as np
 import scanpy as sc
+import anndata as ad
 from scipy.stats import spearmanr, pearsonr
 import matplotlib
 import seaborn as sns
@@ -328,3 +329,24 @@ def generate_color_palette(n_colors, palette='colorblind'):
         base_palette = sns.color_palette(palette, n_colors=n_colors)
 
     return base_palette
+
+
+
+def check_adata(adata):
+    """ check if input is a valid AnnData object
+    
+    this function is adapted from the scib package
+    """
+    if type(adata) is not ad.AnnData:
+        raise TypeError("Input is not a valid AnnData object")
+
+
+def check_obs_variable(variable: str, adata_obs: pd.DataFrame, verbose=False):
+    """ check if data grouping variable is in obs dataframe
+    
+    this function is adapted from the scib package
+    """
+    if variable not in adata_obs:
+        raise ValueError(f"column {variable} is not in obs")
+    elif verbose:
+        print(f"Object contains {adata_obs[variable].nunique()} batches.")

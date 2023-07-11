@@ -13,7 +13,6 @@ import os
 import anndata as ad
 import numpy as np
 import pandas as pd
-import scib
 
 from sc_imputation_denoising.metrics import (
     kmeans_ari,
@@ -26,6 +25,8 @@ from sc_imputation_denoising.metrics import (
     ion_corr_deviation,
     cell_corr,
 )
+
+from sc_imputation_denoising.evaluation.utils import check_adata, check_obs_variable
 
 
 def metrics(
@@ -79,15 +80,16 @@ def metrics(
         whether to invert metrics that are better at lower scores (e.g. MSE, Davies-Bouldin)
     """
 
-    scib.utils.check_adata(adata)
-    scib.utils.check_batch(condition_key, adata.obs)
 
-    scib.utils.check_adata(adata_ctrl)
-    scib.utils.check_batch(condition_key, adata_ctrl.obs)
+    check_adata(adata)
+    check_obs_variable(condition_key, adata.obs)
+
+    check_adata(adata_ctrl)
+    check_obs_variable(condition_key, adata_ctrl.obs)
 
     if batch_key is not None:
-        scib.utils.check_batch(batch_key, adata.obs)
-        scib.utils.check_batch(batch_key, adata_ctrl.obs)
+        check_obs_variable(batch_key, adata.obs)
+        check_obs_variable(batch_key, adata_ctrl.obs)
 
     result_dict = {}
 
