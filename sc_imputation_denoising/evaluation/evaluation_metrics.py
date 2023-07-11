@@ -1,3 +1,14 @@
+""" High-level functions to compute evaluation metrics collectively.
+
+Functions:
+    metrics: Compute manually specified metrics based on an imputed and non-imputed anndata object
+    metrics_plotting: Compute metrics relevant for plotting 2x2 performance matrices based on 
+        imputed and non-imputed anndata object
+    metrics_all: Compute all metrics based on imputed and non-imputed anndata object
+
+
+Author: Marius Klein, July 2023
+"""
 import os
 import anndata as ad
 import numpy as np
