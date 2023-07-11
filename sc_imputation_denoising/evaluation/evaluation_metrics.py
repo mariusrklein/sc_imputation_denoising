@@ -185,6 +185,43 @@ def metrics_plotting(
         invert_metrics=True,
     )[0].to_dict()
 
+def metrics_all(
+    adata,
+    adata_ctrl,
+    condition_key,
+    batch_key=None,
+):
+    """All Metrics
+
+    Wrapper to return all available metrics.
+    Compute of all metrics based on imputed and non-imputed control anndata object
+
+    :param adata:
+        imputed anndata object
+    :param adata_ctrl:
+        nonöimputed control anndata object
+    :param condition_key:
+        name of condition column in adata.obs and adata_ctrl.obs
+    :param batch_key:
+        name of batch column in adata.obs and adata_ctrl.obs
+    """
+
+    return metrics(
+        adata=adata,
+        adata_ctrl=adata_ctrl,
+        condition_key=condition_key,
+        kmeans_ari_=True,
+        silhouette_=True,
+        calinski_=True,
+        davies_=True,
+        mse_values_=True,
+        mse_variance_=True,
+        corr_ions_=True,
+        corr_ions_deviation_=True,
+        corr_cells_=True,
+        invert_metrics=True,
+    )[0].to_dict()
+
 
 if __name__ == "__main__":
     cwd = os.path.dirname(os.path.realpath(__file__))
