@@ -5,18 +5,18 @@ This repository contains the corresponding code for the Master's Thesis ["Overco
 ## Installation
 
 The Python package can be downloaded from this GitHub repo via pip. Just run this command in your Terminal:
-´´´
+```
 $ pip install git+https://github.com/mariusrklein/sc_imputation_denoising
-´´´
+```
 This installs the package and all dependencies.
 
 ## Contents
 
 The package contains the following modules:
  
-    - imputation: contains functions for the preparation of the data for imputation or denoising, e.g. [filtering of sparse ions and cells](https://github.com/mariusrklein/sc_imputation_denoising/blob/main/sc_imputation_denoising/imputation/filtering.py), [simulation of missing values](https://github.com/mariusrklein/sc_imputation_denoising/blob/main/sc_imputation_denoising/imputation/simulation.py) using MCAR or MNAR mechanisms, and the calculation of the missing value rate.
-    - evaluation: contains functions for the high-level evaluation of imputation and denoising methods and the visualization of the respective results, e.g. collective calculation of the [evaluation metrics](https://github.com/mariusrklein/sc_imputation_denoising/blob/main/sc_imputation_denoising/evaluation/evaluation_metrics.py), [complete workflow](https://github.com/mariusrklein/sc_imputation_denoising/blob/main/sc_imputation_denoising/evaluation/evaluation_workflow.py) of sparsity simulation, imputation, and evaluation, [visualization of the results](https://github.com/mariusrklein/sc_imputation_denoising/blob/main/sc_imputation_denoising/evaluation/evaluation_plots.py)
-    - metrics: implementation of the individual metrics employed in the work, e.g. mean squared error of values (MSE), cluster separation metrics.
+* imputation: contains functions for the preparation of the data for imputation or denoising, e.g. [filtering of sparse ions and cells](https://github.com/mariusrklein/sc_imputation_denoising/blob/main/sc_imputation_denoising/imputation/filtering.py), [simulation of missing values](https://github.com/mariusrklein/sc_imputation_denoising/blob/main/sc_imputation_denoising/imputation/simulation.py) using MCAR or MNAR mechanisms, and the calculation of the missing value rate.
+* evaluation: contains functions for the high-level evaluation of imputation and denoising methods and the visualization of the respective results, e.g. collective calculation of the [evaluation metrics](https://github.com/mariusrklein/sc_imputation_denoising/blob/main/sc_imputation_denoising/evaluation/evaluation_metrics.py), the [complete workflow](https://github.com/mariusrklein/sc_imputation_denoising/blob/main/sc_imputation_denoising/evaluation/evaluation_workflow.py) of sparsity simulation, imputation, and evaluation, [visualization of the results](https://github.com/mariusrklein/sc_imputation_denoising/blob/main/sc_imputation_denoising/evaluation/evaluation_plots.py)
+* metrics: implementation of the individual metrics employed in the work, e.g. mean squared error of values (MSE), cluster separation metrics.
 
 
 ## Usage
